@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Bayon&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
 
 .internships-info {
     width: 100vw;
@@ -7,6 +9,14 @@
 
     display: flex;
     flex-direction: column;
+    align-items: center;
+}
+.internships-info-m {
+    width: 100vw;
+    background-color: #333533;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
 }
 
@@ -27,7 +37,7 @@
 
 .internships-card {
     width: 40vw;
-    height: 120px;
+    height: auto;
     border-radius: 15px;
     background-color: #D6D6D6;
     display: flex;
@@ -35,26 +45,45 @@
     align-items: flex-start;
     padding: 20px;
     margin-bottom: 50px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1;
+    position: relative;
 }
+
+
 
 .card-title {
     font-size: 24px;
     font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: black;
+    position: relative;
+
 }
 
 .card-subtitle {
     margin:5px 0 5px 0;
     padding: 0;
+    font-family: 'Poppins', sans-serif;
+    color: black;
+    position: relative;
+    
 }
 
 .card-info {
     position: absolute;
-    z-index: 10;
+    z-index: 100;
     min-width: 400px;
     max-width: 700px;
+    height: auto;
     background-color: #f0ebeb;
     font-size: 18px;
     padding: 5px;
     border-radius: 5px;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), -2px 2px 4px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+    color: black;
+    word-wrap: break-word;
 }

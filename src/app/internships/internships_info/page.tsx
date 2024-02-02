@@ -1,9 +1,18 @@
-import { bayon } from "@/utils/fonts";
+'use client';
+
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./internships_info.css";
 
 
+interface info  {
+  [key: string]: {
+    Eligibility: string;
+    Deadline: string;
+    City: string;
+    Filter: string;
+  };
+};
 const info = {
     "Morgan Stanley Technology Analyst Program": {
       "Eligibility": "Final year",
@@ -241,7 +250,7 @@ const info = {
     }
   };
 
-  function shortenString(inputString, maxLength) {
+  function shortenString(inputString: string, maxLength: number): string {
     if (inputString.length <= maxLength) {
       return inputString;
     } else {
@@ -249,11 +258,25 @@ const info = {
     }
   }
   
-  function Card({name, eligibility, deadline, city}) {
+
+  interface CardProps {
+    name: string;
+    eligibility: string;
+    deadline: string;
+    city: string;
+    isMobile: boolean;
+  }
+  
+  interface CardInfoProps {
+    text: string;
+  }
+
+ 
+  function Card({name, eligibility, deadline, city, isMobile}: CardProps) {
 
     var f_name = name;
     var f_eligibility = eligibility;
-    var max = 50;
+    var max = isMobile ? 15 : 50;
 
     name = shortenString(name, max);
     eligibility = shortenString(eligibility, max+40);
@@ -262,24 +285,29 @@ const info = {
     }
     const [showFName, setShowFName] = useState(false);
     const [showFEl, setShowFEl] = useState(false);
+    const [zindex, setZindex] = useState("1");
 
-    function CardInfo({text}) {
+    function CardInfo({text}: CardInfoProps) {
 
         return (
-            <div className="card-info">
+            <div className="card-info" style={isMobile ? {"minWidth" : "0px"} : {}}>
                 {text}
             </div>
         )
     }
     
+    function mouseChange(fn: any, fn_val: boolean, index: string) {
+      fn(fn_val);
+      setZindex(index);
+    }
 
     return (
-        <div className="internships-card">
-            <div className="card-title" style={{"cursor": "pointer"}} onMouseEnter={() => setShowFName(true)} onMouseLeave={() => setShowFName(false)}>
+        <div className="internships-card" style={isMobile ? {"width": "80%", "height": "auto"} : {"zIndex": zindex}}>
+            <div className="card-title" style={{"cursor": "pointer", "zIndex":"1"}} onMouseEnter={() => mouseChange(setShowFName, true, "99")} onMouseLeave={() => mouseChange(setShowFName, false, "1")}>
                 Employer: {name}
                 {showFName && <CardInfo text={f_name}/>}
             </div>
-            <div className="card-subtitle" style={{"cursor": "pointer"}} onMouseEnter={() => setShowFEl(true)} onMouseLeave={() => setShowFEl(false)}>
+            <div className="card-subtitle" style={{"cursor": "pointer"}} onMouseEnter={() => mouseChange(setShowFEl, true, "99")} onMouseLeave={() => mouseChange(setShowFEl, false, "1")}>
                 Eligibility: {eligibility}
                 {showFEl && <CardInfo text={f_eligibility}/>}
             </div>
@@ -293,36 +321,52 @@ const info = {
         </div>
     )
   }
+  const useMediaQuery = (width:number) => {
+    const [targetReached, setTargetReached] = useState(false);
+  
+    const updateTarget = useCallback((e:any) => {
+      if (e.matches) {
+        setTargetReached(true);
+      } else {
+        setTargetReached(false);
+      }
+    }, []);
+  
+    useEffect(() => {
+      const media = window.matchMedia(`(max-width: ${width}px)`);
+      media.addListener(updateTarget);
+  
+      if (media.matches) {
+        setTargetReached(true);
+      }
+  
+      return () => media.removeListener(updateTarget);
+    }, []);
+  
+    return targetReached;
+  };
+
 export default function Internships_Info() {
 
     const [isMobile, setIsMobile] = useState(false);
     const [scrollOpacity, setScrollOpacity] = useState(1);
 
-    function handleWindowSizeChange() {
-        setIsMobile(window.innerWidth <= 500);
-      }
-      
-      useEffect(() => {
-        handleWindowSizeChange();
-        window.addEventListener('resize', handleWindowSizeChange);
-        return () => {
-          window.removeEventListener('resize', handleWindowSizeChange);
-        };
-      }, []);
-
-      useEffect(()=> {
-        handleWindowSizeChange();
-      }, [])
+    var m = useMediaQuery(768);
+    useEffect(()=> {
+      setIsMobile(m);
+    }, [m])
     
     const keys = Object.keys(info);
     var rows = []
     for (var i = 0; i< keys.length; i++) {
+      var key = keys[i];
         if (!isMobile) {
             var row = [];
-        row.push(<Card name={keys[i]} eligibility={info[keys[i]]["Eligibility"]} deadline={info[keys[i]]["Deadline"]} city={info[keys[i]]["City"]} />);
+        row.push(<Card isMobile={false} name={keys[i]} eligibility={(info as info)[key]["Eligibility"]} deadline={(info as info)[key]["Deadline"]} city={(info as info)[key]["City"]} />);
         if (i < keys.length-1) {
             i = i+1;
-            row.push(<Card name={keys[i]} eligibility={info[keys[i]]["Eligibility"]} deadline={info[keys[i]]["Deadline"]} city={info[keys[i]]["City"]} />);
+            key = keys[i]
+            row.push(<Card isMobile={false} name={key} eligibility={(info as info)[key]["Eligibility"]} deadline={(info as info)[key]["Deadline"]} city={(info as info)[key]["City"]} />);
         }
 
         rows.push(
@@ -331,11 +375,12 @@ export default function Internships_Info() {
             </div>
         )
         } else {
-            rows.push(<Card name={keys[i]} eligibility={info[keys[i]]["Eligibility"]} deadline={info[keys[i]]["Deadline"]} city={info[keys[i]]["City"]} />);
+            rows.push(<Card isMobile={true} name={keys[i]} eligibility={(info as info)[key]["Eligibility"]} deadline={(info as info)[key]["Deadline"]} city={(info as info)[key]["City"]} />);
         }
     }
 
-    return (
+    if (!isMobile) {
+      return (
         <div className="internships-info">
             <h1 className="internships_info_title">
             INTERNSHIPS
@@ -343,4 +388,14 @@ export default function Internships_Info() {
             {rows}
         </div>
     )
+    } else {
+      return (
+        <div className="internships-info-m">
+          <h1 className="internships_info_title">
+            INTERNSHIPS
+          </h1>
+          {rows}
+        </div>
+      )
+    }
 }
